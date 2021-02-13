@@ -1,6 +1,8 @@
 package main;
 
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 
 public class Game extends Canvas implements Runnable {
@@ -31,13 +33,28 @@ public class Game extends Canvas implements Runnable {
     public Game() {
         new Window(new Dimension(WIDTH, HEIGHT), "snake", this);
 
+        setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+
         init();
 
         start();
     }
 
+    // TODO: 2/13/2021 organize 
     private void init() {
+        addKeyListener(new TAdapter());
+        setFocusable(true);
 
+        locateFood();
+
+        size = 5;
+
+        int j = 0;
+        for (int i = 0; i < size; i++) {
+            x[i] = 10 - j;
+            y[i] = 10;
+            j++;
+        }
     }
 
     private synchronized void start() {
@@ -60,7 +77,7 @@ public class Game extends Canvas implements Runnable {
     public void run() {
         this.requestFocus();
         long lastTime = System.nanoTime();
-        double amountOfTicks = 10.0;
+        double amountOfTicks = 1.0;
         double ns = 1000000000 / amountOfTicks;
         double delta = 0;
         long timer = System.currentTimeMillis();
@@ -130,11 +147,47 @@ public class Game extends Canvas implements Runnable {
     private synchronized void checkFood() {
         if (x[0] == foodX && y[0] == foodY) {
             size++;
+
+            locateFood();
+        }
+    }
+
+    /**
+     * TODO: 2/13/2021 intersection with body check
+     */
+    private void locateFood() {
+        foodX = (int) (Math.random() * (GAME_SIZE / BLOCK_SIZE));
+        foodY = (int) (Math.random() * (GAME_SIZE / BLOCK_SIZE));
+    }
+
+    // TODO: 2/13/2021 fix self eat bug
+    private class TAdapter extends KeyAdapter {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            int key = e.getKeyCode();
+
+            if (key == KeyEvent.VK_A && direction != Direction.Right) {
+                direction = Direction.Left;
+            }
+
+            if (key == KeyEvent.VK_D && direction != Direction.Left) {
+                direction = Direction.Right;
+            }
+
+            if (key == KeyEvent.VK_W && direction != Direction.Down) {
+                direction = Direction.Up;
+            }
+
+            if (key == KeyEvent.VK_S && direction != Direction.Up) {
+                direction = Direction.Down;
+            }
         }
     }
 
     private void tick() {
-
+        checkFood();
+        move();
+        gameOver();
     }
 
     private void render() {
