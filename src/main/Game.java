@@ -1,4 +1,4 @@
-package window;
+package main;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -7,8 +7,20 @@ public class Game extends Canvas implements Runnable {
     private boolean isRunning = false;
     private Thread thread;
 
+    private final int GAME_SIZE = 640;
+    private final int WIDTH = GAME_SIZE + 14;
+    private final int HEIGHT = GAME_SIZE + 37;
+    private final int BLOCK_SIZE = 32;
+
+    private int[] x;
+    private int[] y;
+    private int size;
+
+    private int foodX;
+    private int foodY;
+
     public Game() {
-        new Window(new Dimension(600,600), "snake", this);
+        new Window(new Dimension(WIDTH, HEIGHT), "snake", this);
 
         init();
 
@@ -76,7 +88,7 @@ public class Game extends Canvas implements Runnable {
         Graphics g = bs.getDrawGraphics();
 
         g.setColor(Color.BLACK);
-        g.fillRect(0, 0, 600, 600);
+        g.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
 
         g.dispose();
         bs.show();
