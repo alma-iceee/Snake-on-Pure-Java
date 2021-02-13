@@ -19,6 +19,15 @@ public class Game extends Canvas implements Runnable {
     private int foodX;
     private int foodY;
 
+    private enum Direction{
+        right,
+        left,
+        up,
+        down
+    }
+
+    private Direction direction;
+
     public Game() {
         new Window(new Dimension(WIDTH, HEIGHT), "snake", this);
 
@@ -72,6 +81,45 @@ public class Game extends Canvas implements Runnable {
         }
 
         stop();
+    }
+
+    public void endGame(){
+        for (int i = 4; i < size; i++){
+            if (x[0] == x[i] && y[0] == y[i])
+                stop();
+        }
+    }
+
+    public void move(){
+        if (direction == Direction.right){
+            x[0]++;
+            x[0] %= 20;
+        }
+        if (direction == Direction.left){
+            x[0]--;
+            if (x[0] < 0)
+                x[0] = 19;
+        }
+        if (direction == Direction.up){
+            y[0]--;
+            if (y[0] < 0)
+                x[0] = 19;
+        }
+        if (direction == Direction.down){
+            y[0]++;
+            y[0] %= 20;
+        }
+        for (int i = size-1; i > 0; i--){
+            x[i] = x[i-1];
+            y[i] = y[i-1];
+        }
+    }
+
+
+    public void eat(){
+        if (x[0] == foodX && y[0] == foodY){
+            size++;
+        }
     }
 
     private void tick() {
