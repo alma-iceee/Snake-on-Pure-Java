@@ -103,7 +103,6 @@ public class Game extends Canvas implements Runnable {
     private synchronized void move() {
         if (direction == Direction.Right) {
             x[0]++;
-
             x[0] %= 20;
         }
 
@@ -125,7 +124,6 @@ public class Game extends Canvas implements Runnable {
 
         if (direction == Direction.Down) {
             y[0]++;
-
             y[0] %= 20;
         }
 
@@ -153,11 +151,19 @@ public class Game extends Canvas implements Runnable {
     }
 
     /**
-     * TODO: 2/13/2021 intersection with body check
+     * TODO: 2/13/2021 intersection with body check (test needed)
      */
     private void locateFood() {
-        foodX = (int) (Math.random() * (GAME_SIZE / BLOCK_SIZE));
-        foodY = (int) (Math.random() * (GAME_SIZE / BLOCK_SIZE));
+        boolean found = false;
+        while (!found) {
+            int count = 0;
+            foodX = (int) (Math.random() * (GAME_SIZE / BLOCK_SIZE));
+            foodY = (int) (Math.random() * (GAME_SIZE / BLOCK_SIZE));
+            for (int i = 0; i < size; i++){
+                if (foodX != x[i] && foodY != y[i]){ count++; }
+            }
+            if (count == size){ found = true; }
+        }
     }
 
     // TODO: 2/13/2021 fix self eat bug
