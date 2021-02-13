@@ -12,21 +12,21 @@ public class Game extends Canvas implements Runnable {
     private final int HEIGHT = GAME_SIZE + 37;
     private final int BLOCK_SIZE = 32;
 
-    private int[] x;
-    private int[] y;
+    private final int[] x = new int[GAME_SIZE / BLOCK_SIZE];
+    private final int[] y = new int[GAME_SIZE / BLOCK_SIZE];
     private int size;
 
     private int foodX;
     private int foodY;
 
-    private enum Direction{
-        right,
-        left,
-        up,
-        down
+    private enum Direction {
+        Right,
+        Left,
+        Up,
+        Down
     }
 
-    private Direction direction;
+    private Direction direction = Direction.Right;
 
     public Game() {
         new Window(new Dimension(WIDTH, HEIGHT), "snake", this);
@@ -83,41 +83,52 @@ public class Game extends Canvas implements Runnable {
         stop();
     }
 
-    public void endGame(){
-        for (int i = 4; i < size; i++){
-            if (x[0] == x[i] && y[0] == y[i])
-                stop();
-        }
-    }
-
-    public void move(){
-        if (direction == Direction.right){
+    private synchronized void move() {
+        if (direction == Direction.Right) {
             x[0]++;
+
             x[0] %= 20;
         }
-        if (direction == Direction.left){
+
+        if (direction == Direction.Left) {
             x[0]--;
-            if (x[0] < 0)
+
+            if (x[0] < 0) {
                 x[0] = 19;
+            }
         }
-        if (direction == Direction.up){
+
+        if (direction == Direction.Up) {
             y[0]--;
-            if (y[0] < 0)
-                x[0] = 19;
+
+            if (y[0] < 0) {
+                y[0] = 19;
+            }
         }
-        if (direction == Direction.down){
+
+        if (direction == Direction.Down) {
             y[0]++;
+
             y[0] %= 20;
         }
-        for (int i = size-1; i > 0; i--){
-            x[i] = x[i-1];
-            y[i] = y[i-1];
+
+        for (int i = size - 1; i > 0; i--) {
+            x[i] = x[i - 1];
+            y[i] = y[i - 1];
         }
     }
 
+    // TODO: 2/13/2021  game over screen
+    private synchronized void gameOver() {
+        for (int i = 2; i < size; i++) {
+            if (x[0] == x[i] && y[0] == y[i]) {
+                stop();
+            }
+        }
+    }
 
-    public void eat(){
-        if (x[0] == foodX && y[0] == foodY){
+    private synchronized void checkFood() {
+        if (x[0] == foodX && y[0] == foodY) {
             size++;
         }
     }
@@ -136,7 +147,15 @@ public class Game extends Canvas implements Runnable {
         Graphics g = bs.getDrawGraphics();
 
         g.setColor(Color.BLACK);
-        g.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+
+        g.setColor(Color.YELLOW);
+        g.fillRect(foodX * BLOCK_SIZE, foodY * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+
+        g.setColor(Color.RED);
+        for (int i = 0; i < size; i++) {
+            g.fillRect(x[i] * BLOCK_SIZE, y[i] * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        }
 
         g.dispose();
         bs.show();
