@@ -12,11 +12,12 @@ public class Game extends Canvas implements Runnable {
     private final int GAME_SIZE = 640;
     private final int WIDTH = GAME_SIZE + 14;
     private final int HEIGHT = GAME_SIZE + 37;
-    private final int BLOCK_SIZE = 32;
+    private final int BLOCK_SIZE = 8;
 
-    private final int[] x = new int[GAME_SIZE / BLOCK_SIZE];
-    private final int[] y = new int[GAME_SIZE / BLOCK_SIZE];
+    private final int[] x = new int[(GAME_SIZE / BLOCK_SIZE)*(GAME_SIZE / BLOCK_SIZE)];
+    private final int[] y = new int[(GAME_SIZE / BLOCK_SIZE)*(GAME_SIZE / BLOCK_SIZE)];
     private int size;
+    private int score = 0;
 
     private int foodX;
     private int foodY;
@@ -25,10 +26,13 @@ public class Game extends Canvas implements Runnable {
         Right,
         Left,
         Up,
-        Down
+        Down,
+        None
     }
 
+
     private Direction direction = Direction.Right;
+    private Direction nextDirection = Direction.None;
 
     public Game() {
         new Window(new Dimension(WIDTH, HEIGHT), "snake", this);
@@ -51,8 +55,8 @@ public class Game extends Canvas implements Runnable {
 
         int j = 0;
         for (int i = 0; i < size; i++) {
-            x[i] = 10 - j;
-            y[i] = 10;
+            x[i] = (GAME_SIZE / BLOCK_SIZE)/2 - j;
+            y[i] = (GAME_SIZE / BLOCK_SIZE)/2;
             j++;
         }
     }
@@ -101,16 +105,19 @@ public class Game extends Canvas implements Runnable {
     }
 
     private synchronized void move() {
+        if (nextDirection != Direction.None) {
+            direction = nextDirection;
+        }
         if (direction == Direction.Right) {
             x[0]++;
-            x[0] %= 20;
+            x[0] %= GAME_SIZE / BLOCK_SIZE;
         }
 
         if (direction == Direction.Left) {
             x[0]--;
 
             if (x[0] < 0) {
-                x[0] = 19;
+                x[0] = GAME_SIZE / BLOCK_SIZE-1;
             }
         }
 
@@ -118,13 +125,13 @@ public class Game extends Canvas implements Runnable {
             y[0]--;
 
             if (y[0] < 0) {
-                y[0] = 19;
+                y[0] = GAME_SIZE / BLOCK_SIZE-1;
             }
         }
 
         if (direction == Direction.Down) {
             y[0]++;
-            y[0] %= 20;
+            y[0] %= GAME_SIZE / BLOCK_SIZE;
         }
 
         for (int i = size - 1; i > 0; i--) {
@@ -145,7 +152,8 @@ public class Game extends Canvas implements Runnable {
     private synchronized void checkFood() {
         if (x[0] == foodX && y[0] == foodY) {
             size++;
-
+            score+=10;
+            System.out.println(score);
             locateFood();
         }
     }
@@ -173,19 +181,19 @@ public class Game extends Canvas implements Runnable {
             int key = e.getKeyCode();
 
             if (key == KeyEvent.VK_A && direction != Direction.Right) {
-                direction = Direction.Left;
+                nextDirection = Direction.Left;
             }
 
             if (key == KeyEvent.VK_D && direction != Direction.Left) {
-                direction = Direction.Right;
+                nextDirection = Direction.Right;
             }
 
             if (key == KeyEvent.VK_W && direction != Direction.Down) {
-                direction = Direction.Up;
+                nextDirection = Direction.Up;
             }
 
             if (key == KeyEvent.VK_S && direction != Direction.Up) {
-                direction = Direction.Down;
+                nextDirection = Direction.Down;
             }
         }
     }
@@ -196,7 +204,21 @@ public class Game extends Canvas implements Runnable {
         gameOver();
     }
 
-    private void render() {
+    //todo: 2/20/21 need to make menu/engame/difficulty screens
+
+    private void menu(){
+
+    }
+
+    private void endGame(){
+
+    }
+
+    private void difficulty(){
+
+    }
+
+    private void inGame(){
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) {
             this.createBufferStrategy(3);
@@ -218,6 +240,10 @@ public class Game extends Canvas implements Runnable {
 
         g.dispose();
         bs.show();
+    }
+
+    private void render() {
+        inGame();
     }
 
     public static void main(String[] args) {
