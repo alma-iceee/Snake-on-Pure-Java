@@ -9,19 +9,33 @@ public class Game extends Canvas implements Runnable {
     private boolean isRunning = false;
     private Thread thread;
 
+    // You can set preferred screen size (width and height)
     private final int GAME_SIZE = 640;
+
+    // These constants shouldn't be changed
     private final int WIDTH = GAME_SIZE + 14;
     private final int HEIGHT = GAME_SIZE + 37;
-    private final int BLOCK_SIZE = 8;
 
-    private final int[] x = new int[(GAME_SIZE / BLOCK_SIZE)*(GAME_SIZE / BLOCK_SIZE)];
-    private final int[] y = new int[(GAME_SIZE / BLOCK_SIZE)*(GAME_SIZE / BLOCK_SIZE)];
-    private int size;
+    // You can set preferred game block size (snake's body, food, etc.)
+    private final int BLOCK_SIZE = 64 * 2;
+
+    private double amountOfTicks = 1.0;
+
+    // Snake coordinates
+    private final int[] snakeX = new int[(GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE)];
+    private final int[] snakeY = new int[(GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE)];
+
+    // Starting snake's body size
+    private int size = 2;
+
+    // Player's score
     private int score = 0;
 
+    // Food coordinates
     private int foodX;
     private int foodY;
 
+    // Snake direction
     private enum Direction {
         Right,
         Left,
@@ -29,36 +43,33 @@ public class Game extends Canvas implements Runnable {
         Down,
         None
     }
-
-
     private Direction direction = Direction.Right;
     private Direction nextDirection = Direction.None;
 
+    private enum State {
+        Menu,
+        Game
+    }
+
+    // Game constructor
     public Game() {
         new Window(new Dimension(WIDTH, HEIGHT), "snake", this);
-
-        setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 
         init();
 
         start();
     }
 
-    // TODO: 2/13/2021 organize 
+    // Initializing keyboard adapter, snake and food
     private void init() {
-        addKeyListener(new TAdapter());
-        setFocusable(true);
+        addKeyListener(new KeyInput());
+
+        for (int i = 0; i < size; i++) {
+            snakeX[i] = (GAME_SIZE / BLOCK_SIZE) / 2 - i;
+            snakeY[i] = (GAME_SIZE / BLOCK_SIZE) / 2;
+        }
 
         locateFood();
-
-        size = 5;
-
-        int j = 0;
-        for (int i = 0; i < size; i++) {
-            x[i] = (GAME_SIZE / BLOCK_SIZE)/2 - j;
-            y[i] = (GAME_SIZE / BLOCK_SIZE)/2;
-            j++;
-        }
     }
 
     private synchronized void start() {
@@ -81,7 +92,6 @@ public class Game extends Canvas implements Runnable {
     public void run() {
         this.requestFocus();
         long lastTime = System.nanoTime();
-        double amountOfTicks = 1.0;
         double ns = 1000000000 / amountOfTicks;
         double delta = 0;
         long timer = System.currentTimeMillis();
@@ -105,77 +115,105 @@ public class Game extends Canvas implements Runnable {
     }
 
     private synchronized void move() {
+        for (int i = size - 1; i > 0; i--) {
+            snakeX[i] = snakeX[i - 1];
+            snakeY[i] = snakeY[i - 1];
+        }
+
         if (nextDirection != Direction.None) {
             direction = nextDirection;
         }
+
         if (direction == Direction.Right) {
-            x[0]++;
-            x[0] %= GAME_SIZE / BLOCK_SIZE;
+            snakeX[0]++;
+
+            snakeX[0] %= GAME_SIZE / BLOCK_SIZE;
         }
 
         if (direction == Direction.Left) {
-            x[0]--;
+            snakeX[0]--;
 
-            if (x[0] < 0) {
-                x[0] = GAME_SIZE / BLOCK_SIZE-1;
+            if (snakeX[0] < 0) {
+                snakeX[0] = GAME_SIZE / BLOCK_SIZE - 1;
             }
         }
 
         if (direction == Direction.Up) {
-            y[0]--;
+            snakeY[0]--;
 
-            if (y[0] < 0) {
-                y[0] = GAME_SIZE / BLOCK_SIZE-1;
+            if (snakeY[0] < 0) {
+                snakeY[0] = GAME_SIZE / BLOCK_SIZE - 1;
             }
         }
 
         if (direction == Direction.Down) {
-            y[0]++;
-            y[0] %= GAME_SIZE / BLOCK_SIZE;
-        }
+            snakeY[0]++;
 
-        for (int i = size - 1; i > 0; i--) {
-            x[i] = x[i - 1];
-            y[i] = y[i - 1];
+            snakeY[0] %= GAME_SIZE / BLOCK_SIZE;
         }
     }
 
     // TODO: 2/13/2021  game over screen
     private synchronized void gameOver() {
         for (int i = 2; i < size; i++) {
-            if (x[0] == x[i] && y[0] == y[i]) {
+            if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
                 stop();
             }
         }
     }
 
     private synchronized void checkFood() {
-        if (x[0] == foodX && y[0] == foodY) {
+        if (snakeX[0] == foodX && snakeY[0] == foodY) {
             size++;
-            score+=10;
-            System.out.println(score);
+            snakeX[size - 1] = -1;
+            snakeY[size - 1] = -1;
+            score += 10;
             locateFood();
         }
     }
 
     /**
-     * TODO: 2/13/2021 intersection with body check (test needed)
+     * TODO: 2/13/2021 optimize
      */
-    private void locateFood() {
-        boolean found = false;
-        while (!found) {
-            int count = 0;
-            foodX = (int) (Math.random() * (GAME_SIZE / BLOCK_SIZE));
-            foodY = (int) (Math.random() * (GAME_SIZE / BLOCK_SIZE));
-            for (int i = 0; i < size; i++){
-                if (foodX != x[i] && foodY != y[i]){ count++; }
+    private synchronized void locateFood() {
+        int[] freeX = new int[(GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE) - size + 1];
+        int[] freeY = new int[(GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE) - size + 1];
+
+        int x = 0;
+        int y = 0;
+        boolean freeCoordinate = true;
+        int k = 0;
+
+        for (int i = 0; i < (GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE); i++) {
+            for (int j = 0; j < size; j++) {
+                if (x == snakeX[j] && y == snakeY[j]) {
+                    freeCoordinate = false;
+                    break;
+                }
             }
-            if (count == size){ found = true; }
+
+            if (freeCoordinate) {
+                freeX[k] = x;
+                freeY[k] = y;
+                k++;
+            }
+
+            x++;
+
+            if (x == GAME_SIZE / BLOCK_SIZE) {
+                x = 0;
+                y++;
+            }
+
+            freeCoordinate = true;
         }
+
+        int randomCoordinate = (int) (Math.random() * ((GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE) - size));
+        foodX = freeX[randomCoordinate];
+        foodY = freeY[randomCoordinate];
     }
 
-    // TODO: 2/13/2021 fix self eat bug
-    private class TAdapter extends KeyAdapter {
+    private class KeyInput extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
             int key = e.getKeyCode();
@@ -206,19 +244,19 @@ public class Game extends Canvas implements Runnable {
 
     //todo: 2/20/21 need to make menu/engame/difficulty screens
 
-    private void menu(){
+    private void menu() {
+        
+    }
+
+    private void endGame() {
 
     }
 
-    private void endGame(){
+    private void difficulty() {
 
     }
 
-    private void difficulty(){
-
-    }
-
-    private void inGame(){
+    private void inGame() {
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) {
             this.createBufferStrategy(3);
@@ -230,12 +268,12 @@ public class Game extends Canvas implements Runnable {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        g.setColor(Color.YELLOW);
+        g.setColor(Color.GREEN);
         g.fillRect(foodX * BLOCK_SIZE, foodY * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 
         g.setColor(Color.RED);
         for (int i = 0; i < size; i++) {
-            g.fillRect(x[i] * BLOCK_SIZE, y[i] * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            g.fillRect(snakeX[i] * BLOCK_SIZE, snakeY[i] * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
         }
 
         g.dispose();
