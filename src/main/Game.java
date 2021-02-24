@@ -17,9 +17,9 @@ public class Game extends Canvas implements Runnable {
     private final int HEIGHT = GAME_SIZE + 37;
 
     // You can set preferred game block size (snake's body, food, etc.)
-    private final int BLOCK_SIZE = 64 * 2;
+    private final int BLOCK_SIZE = 32;
 
-    private double amountOfTicks = 1.0;
+    private double amountOfTicks = 5.0;
 
     // Snake coordinates
     private final int[] snakeX = new int[(GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE)];
@@ -48,13 +48,15 @@ public class Game extends Canvas implements Runnable {
 
     private enum State {
         Menu,
-        Game
+        Game,
+        Pause,
+        End
     }
+    private State state = State.Menu;
 
     // Game constructor
     public Game() {
         new Window(new Dimension(WIDTH, HEIGHT), "snake", this);
-
         init();
 
         start();
@@ -237,15 +239,59 @@ public class Game extends Canvas implements Runnable {
     }
 
     private void tick() {
-        checkFood();
         move();
+        checkFood();
         gameOver();
     }
 
     //todo: 2/20/21 need to make menu/engame/difficulty screens
 
-    private void menu() {
-        
+    private void menuRender(Graphics g) {
+        int rectangleWidth = GAME_SIZE / 2;
+        int rectangleHeight = GAME_SIZE / 10;
+        int rectangleLocationX = GAME_SIZE / 2 - GAME_SIZE / 4;
+        int rectangleLocationY = GAME_SIZE / 10 + 10;
+        int menuSize = HEIGHT / 10;
+        int textSize = HEIGHT / 20;
+
+        Rectangle menu = new Rectangle(rectangleLocationX, 0, rectangleWidth, rectangleHeight * 3);
+        Rectangle playButton = new Rectangle(rectangleLocationX, rectangleLocationY * 2, rectangleWidth, rectangleHeight);
+        Rectangle continueButton = new Rectangle(rectangleLocationX, rectangleLocationY * 3, rectangleWidth, rectangleHeight);
+        Rectangle settingsButton = new Rectangle(rectangleLocationX, rectangleLocationY * 4, rectangleWidth, rectangleHeight);
+        Rectangle aboutButton = new Rectangle(rectangleLocationX, rectangleLocationY * 5, rectangleWidth, rectangleHeight);
+        Rectangle quitButton = new Rectangle(rectangleLocationX, rectangleLocationY * 6, rectangleWidth, rectangleHeight);
+
+        Graphics2D g2d = (Graphics2D) g;
+        g.setColor(Color.WHITE);
+
+        Font fnt0 = new Font("arial", Font.BOLD, menuSize);
+        g.setFont(fnt0);
+        drawCenteredString(g, "MENU", menu, fnt0);
+
+        Font fnt1 = new Font("arial", Font.BOLD, textSize);
+        drawCenteredString(g, "PLAY", playButton, fnt1);
+        drawCenteredString(g, "CONTINUE", continueButton, fnt1);
+        drawCenteredString(g, "SETTINGS", settingsButton, fnt1);
+        drawCenteredString(g, "ABOUT", aboutButton, fnt1);
+        drawCenteredString(g, "QUIT", quitButton, fnt1);
+
+        g2d.draw(playButton);
+        g2d.draw(continueButton);
+        g2d.draw(settingsButton);
+        g2d.draw(aboutButton);
+        g2d.draw(quitButton);
+    }
+
+    // https://stackoverflow.com/questions/27706197/how-can-i-center-graphics-drawstring-in-java
+    public void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {
+        FontMetrics metrics = g.getFontMetrics(font);
+
+        int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
+        int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
+
+        g.setFont(font);
+
+        g.drawString(text, x, y);
     }
 
     private void endGame() {
@@ -256,7 +302,17 @@ public class Game extends Canvas implements Runnable {
 
     }
 
-    private void inGame() {
+    private void gameRender(Graphics g) {
+        g.setColor(Color.GREEN);
+        g.fillRect(foodX * BLOCK_SIZE, foodY * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+
+        g.setColor(Color.RED);
+        for (int i = 0; i < size; i++) {
+            g.fillRect(snakeX[i] * BLOCK_SIZE, snakeY[i] * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        }
+    }
+
+    private void render() {
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) {
             this.createBufferStrategy(3);
@@ -266,22 +322,20 @@ public class Game extends Canvas implements Runnable {
         Graphics g = bs.getDrawGraphics();
 
         g.setColor(Color.BLACK);
-        g.fillRect(0, 0, WIDTH, HEIGHT);
+        g.fillRect(0, 0, getWidth(), getHeight());
 
-        g.setColor(Color.GREEN);
-        g.fillRect(foodX * BLOCK_SIZE, foodY * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        if (state == State.Menu) {
+            menuRender(g);
+        } else if (state == State.Game) {
+            gameRender(g);
+        } else if (state == State.Pause) {
 
-        g.setColor(Color.RED);
-        for (int i = 0; i < size; i++) {
-            g.fillRect(snakeX[i] * BLOCK_SIZE, snakeY[i] * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        } else if (state == State.End) {
+
         }
 
         g.dispose();
         bs.show();
-    }
-
-    private void render() {
-        inGame();
     }
 
     public static void main(String[] args) {
