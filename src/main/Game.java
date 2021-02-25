@@ -25,11 +25,6 @@ public class Game extends Canvas implements Runnable {
     private final int rectangleLocationY = GAME_SIZE / 10 + 10;
     private final int menuSize = HEIGHT / 10;
     private final int textSize = HEIGHT / 20;
-    private Color playRectangleColor = Color.LIGHT_GRAY;
-    private Color continueRectangleColor = Color.GRAY;
-    private Color settingsRectangleColor = Color.LIGHT_GRAY;
-    private Color aboutRectangleColor = Color.LIGHT_GRAY;
-    private Color quitRectangleColor = Color.LIGHT_GRAY;
 
     // You can set preferred game block size (snake's body, food, etc.)
     private final int BLOCK_SIZE = 32;
@@ -39,6 +34,12 @@ public class Game extends Canvas implements Runnable {
     // Snake coordinates
     private final int[] snakeX = new int[(GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE)];
     private final int[] snakeY = new int[(GAME_SIZE / BLOCK_SIZE) * (GAME_SIZE / BLOCK_SIZE)];
+
+    private Color playRectangleColor = Color.LIGHT_GRAY;
+    private Color continueRectangleColor = Color.GRAY;
+    private Color settingsRectangleColor = Color.LIGHT_GRAY;
+    private Color aboutRectangleColor = Color.LIGHT_GRAY;
+    private Color quitRectangleColor = Color.LIGHT_GRAY;
 
     // Starting snake's body size
     private int size;
@@ -93,7 +94,7 @@ public class Game extends Canvas implements Runnable {
     private void initGame() {
         direction = Direction.Right;
         nextDirection = Direction.None;
-        size = 2;
+        size = 3;
         score = 0;
 
         for (int i = 0; i < size; i++) {
@@ -275,6 +276,10 @@ public class Game extends Canvas implements Runnable {
                     nextDirection = Direction.Down;
                 }
 
+                if (key == KeyEvent.VK_Q) {
+                    stop();
+                }
+
                 if (key == KeyEvent.VK_ESCAPE) {
                     state = State.Pause;
                     playRectangleColor = Color.GRAY;
@@ -286,7 +291,7 @@ public class Game extends Canvas implements Runnable {
 
     private class MouseInput extends MouseAdapter {
         @Override
-        public void mouseClicked(MouseEvent e) {
+        public void mouseReleased(MouseEvent e) {
             int x = e.getX();
             int y = e.getY();
             if (state == State.Menu || state == State.Pause) {
@@ -317,27 +322,35 @@ public class Game extends Canvas implements Runnable {
                 }
             } else if (state == State.Settings) {
                 if (x >= rectangleLocationX && x <= rectangleLocationX + rectangleWidth) {
-                    if (y >= rectangleLocationY * 2 && y <= rectangleLocationY * 2 + rectangleHeight) {
+                    if (y >= rectangleLocationY * 2 && y <= rectangleLocationY * 2 + rectangleHeight && amountOfTicks < 15) {
                         amountOfTicks++;
+                        if (amountOfTicks == 15) {
+                            playRectangleColor = Color.GRAY;
+                        }
                     }
-                    if (y >= rectangleLocationY * 5 && y <= rectangleLocationY * 5 + rectangleHeight) {
+                    if (y >= rectangleLocationY * 5 && y <= rectangleLocationY * 5 + rectangleHeight && amountOfTicks > 5) {
                         amountOfTicks--;
+                        if (amountOfTicks == 5) {
+                            aboutRectangleColor = Color.GRAY;
+                        }
                     }
                     if (y >= rectangleLocationY * 6 && y <= rectangleLocationY * 6 + rectangleHeight) {
                         state = State.Menu;
                     }
                 }
             } else if (state == State.About) {
-
+                if (y >= rectangleLocationY * 6 && y <= rectangleLocationY * 6 + rectangleHeight) {
+                    state = State.Menu;
+                }
             }
         }
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            if (state == State.Menu || state == State.Pause) {
-                int x = e.getX();
-                int y = e.getY();
+            int x = e.getX();
+            int y = e.getY();
 
+            if (state == State.Menu || state == State.Pause) {
                 if (state == State.Menu) {
                     playRectangleColor = Color.LIGHT_GRAY;
                     continueRectangleColor = Color.GRAY;
@@ -373,8 +386,39 @@ public class Game extends Canvas implements Runnable {
                 }
             } else if (state == State.Settings) {
 
+                if (amountOfTicks == 15) {
+                    playRectangleColor = Color.GRAY;
+                } else {
+                    playRectangleColor = Color.LIGHT_GRAY;
+                }
+                if (amountOfTicks == 5) {
+                    aboutRectangleColor = Color.GRAY;
+                } else {
+                    aboutRectangleColor = Color.LIGHT_GRAY;
+                }
+
+                quitRectangleColor = Color.LIGHT_GRAY;
+
+                if (x >= rectangleLocationX && x <= rectangleLocationX + rectangleWidth) {
+                    if (y >= rectangleLocationY * 2 && y <= rectangleLocationY * 2 + rectangleHeight && amountOfTicks < 15) {
+                        playRectangleColor = Color.WHITE;
+                    }
+
+                    if (y >= rectangleLocationY * 5 && y <= rectangleLocationY * 5 + rectangleHeight && amountOfTicks > 5) {
+                        aboutRectangleColor = Color.WHITE;
+                    }
+
+                    if (y >= rectangleLocationY * 6 && y <= rectangleLocationY * 6 + rectangleHeight) {
+                        quitRectangleColor = Color.WHITE;
+                    }
+                }
             } else if (state == State.About) {
 
+                quitRectangleColor = Color.LIGHT_GRAY;
+
+                if (y >= rectangleLocationY * 6 && y <= rectangleLocationY * 6 + rectangleHeight) {
+                    quitRectangleColor = Color.WHITE;
+                }
             }
         }
     }
@@ -428,14 +472,14 @@ public class Game extends Canvas implements Runnable {
 
             g.setColor(Color.DARK_GRAY);
 
-            g.drawString("TICK RATE: " + updatesInfo + " FPS: " + framesInfo, getWidth() - 180, getHeight() - 10);
+            g.drawString("TICK RATE: " + updatesInfo + " FPS: " + framesInfo, getWidth() - 185, getHeight() - 10);
 
         } else if (state == State.Pause) {
             menuRender(g);
         } else if (state == State.Settings) {
             settingsRender(g);
         } else if (state == State.About) {
-
+            aboutRender(g);
         }
 
         g.dispose();
@@ -506,6 +550,37 @@ public class Game extends Canvas implements Runnable {
         Rectangle speedDown = new Rectangle(rectangleLocationX, rectangleLocationY * 5, rectangleWidth, rectangleHeight);
         drawCenteredString(g, "SPEED DOWN", speedDown, fnt1);
         g2d.draw(speedDown);
+
+        g.setColor(quitRectangleColor);
+        Rectangle quitButton = new Rectangle(rectangleLocationX, rectangleLocationY * 6, rectangleWidth, rectangleHeight);
+        drawCenteredString(g, "BACK", quitButton, fnt1);
+        g2d.draw(quitButton);
+    }
+
+    private void aboutRender(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+
+
+        Font fnt0 = new Font("arial", Font.BOLD, menuSize);
+
+        g.setColor(Color.WHITE);
+        Rectangle settings = new Rectangle(rectangleLocationX, 0, rectangleWidth, rectangleHeight * 3);
+        drawCenteredString(g, "Creators", settings, fnt0);
+
+        Font fnt1 = new Font("arial", Font.BOLD, textSize);
+
+
+        String creator1 = "Almas Sharipkhan";
+        Rectangle aboutCreator1 = new Rectangle(rectangleLocationX, rectangleLocationY * 2, rectangleWidth, rectangleHeight * 2);
+        drawCenteredString(g, creator1, aboutCreator1, fnt1);
+
+        String creator2 = "Askarbek Makhmedov";
+        Rectangle aboutCreator2 = new Rectangle(rectangleLocationX, rectangleLocationY * 3, rectangleWidth, rectangleHeight * 2);
+        drawCenteredString(g, creator2, aboutCreator2, fnt1);
+
+        String github = "https://github.com/alma-iceee/snake";
+        Rectangle aboutGithub = new Rectangle(rectangleLocationX, rectangleLocationY * 4, rectangleWidth, rectangleHeight * 2);
+        drawCenteredString(g, github, aboutGithub, fnt1);
 
         g.setColor(quitRectangleColor);
         Rectangle quitButton = new Rectangle(rectangleLocationX, rectangleLocationY * 6, rectangleWidth, rectangleHeight);
