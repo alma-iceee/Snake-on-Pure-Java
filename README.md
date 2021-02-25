@@ -32,7 +32,7 @@ There are information about us.
 
 If you find this code useful for your research, please use the star this repository.
 
-<p align="center"><img src="https://sun9-68.userapi.com/impf/WuIcbWh7NHChjbALl-Zo6__tURWLJ8_bo7CGPw/xj_XzPvbzLk.jpg?size=1871x783&quality=96&proxy=1&sign=e214a297be59c02c9cfc252460b7ef31&type=album" width="400"></p>
+<img src="https://sun9-68.userapi.com/impf/WuIcbWh7NHChjbALl-Zo6__tURWLJ8_bo7CGPw/xj_XzPvbzLk.jpg?size=1871x783&quality=96&proxy=1&sign=e214a297be59c02c9cfc252460b7ef31&type=album">
 
 Also you are welcome to contribute this project.
 

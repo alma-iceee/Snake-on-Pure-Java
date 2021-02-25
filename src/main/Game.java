@@ -276,10 +276,6 @@ public class Game extends Canvas implements Runnable {
                     nextDirection = Direction.Down;
                 }
 
-                if (key == KeyEvent.VK_Q) {
-                    stop();
-                }
-
                 if (key == KeyEvent.VK_ESCAPE) {
                     state = State.Pause;
                     playRectangleColor = Color.GRAY;
