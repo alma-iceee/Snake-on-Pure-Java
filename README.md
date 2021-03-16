@@ -34,7 +34,11 @@ You can set snake's speed from 5 up to 15.
 
 <p align="center"><img src="https://sun9-20.userapi.com/impf/4jfnbi1bP9UNKPsYgln1j_pLEkJAKnbXoaR2JQ/hjRPhKqoLfU.jpg?size=803x839&quality=96&proxy=1&sign=e8132e756a71b1c1e6698a99374d0cbe&type=album" width="400"></p>
 
-If you want change some other settings, you can set it inside of code (for example, change preferred screen size in "private static final int GAME_SIZE" line 16). However, don't forget to recompile main class after change.
+If you want change some other settings, you can set it inside of code. For example, change preferred screen size in:
+```
+private final int BLOCK_SIZE = 16
+```
+However, don't forget to recompile main class after change.
 
 ## Authors
 
@@ -53,7 +57,7 @@ There are information about us. Click on "About Us" button in Game Menu.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License.
 
 ## Citation
 
