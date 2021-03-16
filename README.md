@@ -4,8 +4,7 @@
 
 ## About
 
-Very simple snake game code written on pure Java language. The main logic of the all code were taken from https://zetcode.com/javagames/snake/ (snake game logic) and https://www.youtube.com/channel/UCOs7Q7IeuzgRyARaEqif75A (game loop and architecture).
-Game uses "Constant Game Speed with Maximum FPS" Game Loop which can be found here: https://dewitters.com/dewitters-gameloop/.
+Very simple snake game code written on pure Java language. Game uses "Constant Game Speed with Maximum FPS" Game Loop. Main logic of game consist of two separate arrays x and y coordinates, without using double array with objects.
 
 Snake is the a one of the most famous older classic video game concept where the player maneuvers a line which grows in length, with the line itself being a primary obstacle.
 
@@ -43,15 +42,14 @@ There are information about us. Click on "About Us" button in Game Menu.
 
 <p align="center"><img src="https://sun9-60.userapi.com/impf/2PFUQifYY3USpAooMfwYdDzZBboFALQ9ZCZ7iQ/6OhcgqK2TVw.jpg?size=802x836&quality=96&proxy=1&sign=a3f5613781836dc9b39c2c90504a9daf&type=album" width="400"></p>
 
-* **Almas Sharipkhan** - *Main Developer* - [alma-iceee](https://github.com/alma-iceee)
-* 
-* **Askarbek Makhmedov** - *Contributing Developer* - [askarbek101](https://github.com/askarbek101)
+* **Almas Sharipkhan** - *Main Developer* - [alma-iceee](https://github.com/alma-iceee/)
+* **Askarbek Makhmedov** - *Contributing Developer* - [askarbek101](https://github.com/askarbek101/)
 
 ## References
 
-[Game Loop](https://dewitters.com/dewitters-gameloop/)
-[Game Logic](https://zetcode.com/javagames/snake/)
-[Game Architecture](https://www.youtube.com/channel/UCOs7Q7IeuzgRyARaEqif75A/)
+* **Game Loop** - [deWiTTERS Game Loop](https://dewitters.com/dewitters-gameloop/)
+* **Game Logic** - [ZetCode Java Snake](https://zetcode.com/javagames/snake/)
+* **Game Architecture** - [RealTutsGML](https://www.youtube.com/channel/UCOs7Q7IeuzgRyARaEqif75A/)
 
 ## License
 
