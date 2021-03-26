@@ -12,7 +12,7 @@ The size of each of the joints of a snake is by default 32px. The snake is contr
 
 ## Prerequisites
 
-JDK 15.0.1 - https://www.oracle.com/java/technologies/javase-jdk15-downloads.html
+[JDK 15.0.1](https://www.oracle.com/java/technologies/javase-jdk15-downloads.html)
 
 ## Installation
 
