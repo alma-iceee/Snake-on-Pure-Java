@@ -19,7 +19,7 @@ The size of each of the joints of a snake is by default 32px. The snake is contr
 Download from git using this command:
 
 ```
-git clone https://github.com/alma-iceee/snake.git
+git clone https://github.com/alma-iceee/Snake-on-Pure-Java.git
 ```
 
 Then compile and run Game.class (Shift + F10)
